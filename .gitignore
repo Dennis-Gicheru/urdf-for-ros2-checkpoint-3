@@ -1,0 +1,12 @@
+barista_robot_drawing.png
+
+# --- ROS 2 / colcon build artefacts ---
+build/
+install/
+log/
+
+# --- editor / OS noise ---
+*.swp
+*~
+.vscode/
+.DS_Store
