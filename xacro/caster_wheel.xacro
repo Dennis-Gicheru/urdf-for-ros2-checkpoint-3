@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:property name="caster_radius" value="0.025"/>
+
+  <!--
+    caster_wheel: spherical caster for stability (rolls in any direction).
+    params:
+      prefix  -> "front" / "back"
+      parent  -> link to attach to
+      x y z   -> joint origin in the parent frame
+  -->
+  <xacro:macro name="caster_wheel" params="prefix parent x y z">
+    <link name="${prefix}_caster">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry><sphere radius="${caster_radius}"/></geometry>
+        <material name="metal_grey"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry><sphere radius="${caster_radius}"/></geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.05"/>
+        <inertia ixx="0.0000125" ixy="0.0" ixz="0.0"
+                 iyy="0.0000125" iyz="0.0" izz="0.0000125"/>
+      </inertial>
+    </link>
+
+    <joint name="${prefix}_caster_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="${prefix}_caster"/>
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
+    </joint>
+  </xacro:macro>
+
+</robot>

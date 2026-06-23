@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+
 <robot name="barista_robot">
 
   <!-- ===================== MATERIALS (RViz colours) ===================== -->
@@ -213,7 +214,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <!-- FLAG: set the real mesh filename from cp3_auxiliary_files (see README) -->
-      <geometry><mesh filename="package://barista_robot_description/meshes/ouster_os1_32.dae"/></geometry>
+      <geometry><mesh filename="package://barista_robot_description/meshes/LASER_MESH.dae"/></geometry>
       <material name="laser_black"/>
     </visual>
     <collision>

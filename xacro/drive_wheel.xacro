@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Wheel geometry properties (required to live in THIS file by the spec) -->
+  <xacro:property name="wheel_radius" value="0.0352"/>
+  <xacro:property name="wheel_width"  value="0.0206"/>
+
+  <!--
+    drive_wheel: one continuous-revolute cylinder wheel.
+    params:
+      prefix  -> "left" / "right" (drives link + joint names)
+      parent  -> link to attach to
+      x y z   -> joint origin in the parent frame
+    NB: joint is named "${prefix}_wheel_joint" so it matches the DiffDrive plugin.
+  -->
+  <xacro:macro name="drive_wheel" params="prefix parent x y z">
+    <link name="${prefix}_wheel">
+      <visual>
+        <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+        <material name="dark_grey"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+        <mass value="0.3"/>
+        <inertia ixx="0.000104" ixy="0.0" ixz="0.0"
+                 iyy="0.000104" iyz="0.0" izz="0.000186"/>
+      </inertial>
+    </link>
+
+    <joint name="${prefix}_wheel_joint" type="continuous">
+      <parent link="${parent}"/>
+      <child link="${prefix}_wheel"/>
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+  </xacro:macro>
+
+</robot>

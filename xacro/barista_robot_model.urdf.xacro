@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+
+<robot name="barista_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ===================== ARGUMENTS ===================== -->
+  <!-- include_laser defaults to true; set false to build without the lidar -->
+  <xacro:arg name="include_laser" default="true"/>
+
+  <!-- ===================== MATERIALS ===================== -->
+  <material name="body_blue"><color rgba="0.10 0.35 0.75 1.0"/></material>
+  <material name="tray_white"><color rgba="0.92 0.92 0.92 1.0"/></material>
+  <material name="dark_grey"><color rgba="0.15 0.15 0.15 1.0"/></material>
+  <material name="metal_grey"><color rgba="0.55 0.55 0.55 1.0"/></material>
+  <material name="laser_black"><color rgba="0.05 0.05 0.05 1.0"/></material>
+
+  <!-- ===================== PROPERTIES (main body + placement) ===================== -->
+  <xacro:property name="body_radius" value="0.178"/>   <!-- Ø356 -->
+  <xacro:property name="body_length" value="0.155"/>   <!-- 155mm -->
+  <xacro:property name="rod_radius"  value="0.010"/>   <!-- Ø20  -->
+  <xacro:property name="rod_length"  value="0.220"/>   <!-- 220mm -->
+  <xacro:property name="rod_ring"    value="0.100"/>   <!-- rod x/y offset -->
+
+  <!-- ===================== INCLUDES ===================== -->
+  <xacro:include filename="$(find barista_robot_description)/xacro/drive_wheel.xacro"/>
+  <xacro:include filename="$(find barista_robot_description)/xacro/caster_wheel.xacro"/>
+  <xacro:include filename="$(find barista_robot_description)/xacro/standoff_rod.xacro"/>
+  <xacro:include filename="$(find barista_robot_description)/xacro/cup_holder_tray.xacro"/>
+  <xacro:include filename="$(find barista_robot_description)/xacro/laser_scanner.xacro"/>
+
+  <!-- ===================== MAIN BODY ===================== -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><cylinder radius="${body_radius}" length="${body_length}"/></geometry>
+      <material name="body_blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><cylinder radius="${body_radius}" length="${body_length}"/></geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="2.0"/>
+      <inertia ixx="0.019846" ixy="0.0" ixz="0.0"
+               iyy="0.019846" iyz="0.0" izz="0.031684"/>
+    </inertial>
+  </link>
+
+  <!-- ===================== DRIVE WHEELS ===================== -->
+  <!-- y = body_radius + wheel_width/2 ; z = -body_length/2 (body bottom) -->
+  <xacro:drive_wheel prefix="left"  parent="base_link"
+                     x="0" y="${body_radius + wheel_width/2}"  z="${-body_length/2}"/>
+  <xacro:drive_wheel prefix="right" parent="base_link"
+                     x="0" y="${-(body_radius + wheel_width/2)}" z="${-body_length/2}"/>
+
+  <!-- ===================== CASTER WHEELS ===================== -->
+  <!-- z chosen so caster bottom == wheel bottom (robot rests level) -->
+  <xacro:caster_wheel prefix="front" parent="base_link"
+                      x="0.12"  y="0" z="${-body_length/2 - wheel_radius + caster_radius}"/>
+  <xacro:caster_wheel prefix="back"  parent="base_link"
+                      x="-0.12" y="0" z="${-body_length/2 - wheel_radius + caster_radius}"/>
+
+  <!-- ===================== STANDOFF RODS (x4, one definition) ===================== -->
+  <xacro:standoff_rod name="standoff_rod_1" parent="base_link"
+                      x="${rod_ring}"  y="${rod_ring}"  z="${body_length/2 + rod_length/2}"
+                      radius="${rod_radius}" length="${rod_length}"/>
+  <xacro:standoff_rod name="standoff_rod_2" parent="base_link"
+                      x="${rod_ring}"  y="${-rod_ring}" z="${body_length/2 + rod_length/2}"
+                      radius="${rod_radius}" length="${rod_length}"/>
+  <xacro:standoff_rod name="standoff_rod_3" parent="base_link"
+                      x="${-rod_ring}" y="${rod_ring}"  z="${body_length/2 + rod_length/2}"
+                      radius="${rod_radius}" length="${rod_length}"/>
+  <xacro:standoff_rod name="standoff_rod_4" parent="base_link"
+                      x="${-rod_ring}" y="${-rod_ring}" z="${body_length/2 + rod_length/2}"
+                      radius="${rod_radius}" length="${rod_length}"/>
+
+  <!-- ===================== CUP HOLDER TRAY ===================== -->
+  <!-- z = body_top + rod_length + tray_thickness/2 -->
+  <xacro:cup_holder_tray parent="base_link"
+                         z="${body_length/2 + rod_length + tray_thickness/2}"/>
+
+  <!-- ===================== LASER SCANNER (conditional) ===================== -->
+  <xacro:if value="$(arg include_laser)">
+    <xacro:laser_scanner parent="base_link" x="0.08" y="0" z="${body_length/2}"/>
+  </xacro:if>
+
+  <!-- ===================== DIFFERENTIAL DRIVE (Harmonic) ===================== -->
+  <gazebo>
+    <plugin filename="gz-sim-diff-drive-system"
+            name="gz::sim::systems::DiffDrive">
+      <left_joint>left_wheel_joint</left_joint>
+      <right_joint>right_wheel_joint</right_joint>
+      <wheel_separation>${2 * (body_radius + wheel_width/2)}</wheel_separation>
+      <wheel_radius>${wheel_radius}</wheel_radius>
+      <odom_publish_frequency>30</odom_publish_frequency>
+      <topic>cmd_vel</topic>
+      <odom_topic>odom</odom_topic>
+      <tf_topic>/tf</tf_topic>
+      <frame_id>odom</frame_id>
+      <child_frame_id>base_link</child_frame_id>
+    </plugin>
+  </gazebo>
+
+</robot>

@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Cup holder tray geometry (Ø320 -> r0.160, 90mm thick, from the drawing) -->
+  <xacro:property name="tray_radius"    value="0.160"/>
+  <xacro:property name="tray_thickness" value="0.090"/>
+
+  <!--
+    cup_holder_tray: the top plate sitting above the standoff rods.
+    params:
+      parent -> link to attach to
+      z      -> joint origin height in the parent frame
+  -->
+  <xacro:macro name="cup_holder_tray" params="parent z">
+    <link name="cup_holder_tray">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry><cylinder radius="${tray_radius}" length="${tray_thickness}"/></geometry>
+        <material name="body_blue"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry><cylinder radius="${tray_radius}" length="${tray_thickness}"/></geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.5"/>
+        <inertia ixx="0.003538" ixy="0.0" ixz="0.0"
+                 iyy="0.003538" iyz="0.0" izz="0.006400"/>
+      </inertial>
+    </link>
+
+    <joint name="cup_holder_tray_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="cup_holder_tray"/>
+      <origin xyz="0 0 ${z}" rpy="0 0 0"/>
+    </joint>
+  </xacro:macro>
+
+</robot>
