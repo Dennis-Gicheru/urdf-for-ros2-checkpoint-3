@@ -1,8 +1,9 @@
 
+
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, SetEnvironmentVariable
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 
@@ -18,7 +19,7 @@ def generate_launch_description():
     with open(urdf_file, 'r') as f:
         robot_desc = f.read()
 
-    # --- Gazebo (Fortress). gz_sim.launch.py routes to `ign gazebo` on Fortress. ---
+    # --- Gazebo Harmonic via ros_gz_sim gz_sim.launch.py (gz_args -> gz sim) ---
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(ros_gz_sim, 'launch', 'gz_sim.launch.py')),
@@ -56,11 +57,11 @@ def generate_launch_description():
         executable='parameter_bridge',
         output='screen',
         arguments=[
-            '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
-            '/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist',
-            '/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry',
-            '/scan@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan',
-            '/tf@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
+            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
+            '/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
+            '/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
+            '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            '/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
         ],
         parameters=[{'use_sim_time': True}],
     )
@@ -74,6 +75,8 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        # let Gazebo resolve package:// mesh URIs
+        SetEnvironmentVariable('GZ_SIM_RESOURCE_PATH', os.path.join(pkg, '..')),
         gazebo,
         robot_state_publisher,
         joint_state_publisher,

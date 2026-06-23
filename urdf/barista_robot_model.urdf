@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <robot name="barista_robot">
 
   <!-- ===================== MATERIALS (RViz colours) ===================== -->
@@ -197,7 +196,7 @@
   <link name="cup_holder_tray">
     <visual><origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry><cylinder radius="0.160" length="0.090"/></geometry>
-      <material name="tray_white"/></visual>
+      <material name="body_blue"/></visual>
     <collision><origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry><cylinder radius="0.160" length="0.090"/></geometry></collision>
     <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0.5"/>
@@ -240,8 +239,8 @@
 
   <!-- Differential drive: subscribes /cmd_vel, publishes /odom + /tf(odom->base_link) -->
   <gazebo>
-    <plugin filename="libignition-gazebo-diff-drive-system.so"
-            name="ignition::gazebo::systems::DiffDrive">
+    <plugin filename="gz-sim-diff-drive-system"
+            name="gz::sim::systems::DiffDrive">
       <left_joint>left_wheel_joint</left_joint>
       <right_joint>right_wheel_joint</right_joint>
       <wheel_separation>0.3766</wheel_separation>   <!-- 2 * 0.1883 -->
@@ -263,8 +262,8 @@
       <update_rate>10</update_rate>
       <always_on>true</always_on>
       <visualize>true</visualize>
-      <!-- Fortress tag that sets the ROS header.frame_id on the bridged scan -->
-      <ignition_frame_id>laser_scan_link</ignition_frame_id>
+      <!-- Harmonic tag that sets the ROS header.frame_id on the bridged scan -->
+      <gz_frame_id>laser_scan_link</gz_frame_id>
       <lidar>
         <scan>
           <horizontal>
